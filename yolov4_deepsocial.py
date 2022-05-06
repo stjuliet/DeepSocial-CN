@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
     # 检测
     video_length = EndAt-StartFrom
-    with tqdm(total=video_length, desc=f"Process:", mininterval=0.3) as pbar:
+    with tqdm(total=video_length, desc=f"Process", mininterval=0.3) as pbar:
         for _ in range(video_length):
             ret, frame_read = cap.read()
             if not ret:

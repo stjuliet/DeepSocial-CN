@@ -1,9 +1,11 @@
 # DeepSocial-CN
 根据原作者提供的代码添加中文注释，并且增加OpenCV-DNN模块进行YOLOv4目标检测。
+## 使用方法
+- Colab Notebook版本：
+  
+  https://github.com/stjuliet/DeepSocial-CN/blob/master/deepsocial_juliet.ipynb
 
-Colab Notebook版本：https://github.com/stjuliet/DeepSocial-CN/blob/master/deepsocial_juliet.ipynb
-
-OpenCV本地版本：
+- OpenCV本地版本：
 
 1. 克隆Repo:
 ```
