@@ -72,6 +72,7 @@ class YoloDetect(object):
         classIds = []
         confidences = []
         boxes = []    # 保存对应二维框
+        boxes_center = []   # 二维框中心点
         list_type = []  # 保存类型
         nms_dets = []
         for out in outs:
@@ -86,11 +87,14 @@ class YoloDetect(object):
                     height = float(detection[3] * frameHeight)
                     left = float(center_x - width / 2)
                     top = float(center_y - height / 2)
+                    # right = float(center_x + width / 2)
+                    # bottom = float(center_x + height / 2)
 
                     classIds.append(classId)
                     list_type.append(classes[classId])
                     confidences.append(float(confidence))
-                    boxes.append([center_x, center_y, width, height])
+                    boxes.append([left, top, width, height])
+                    boxes_center.append([center_x, center_y])
 
         # Perform non maximum suppression to eliminate redundant overlapping boxes with
         # lower confidences.
@@ -98,8 +102,9 @@ class YoloDetect(object):
         for i in indices:
             i = i[0]
             box = boxes[i]
-            center_x = box[0]
-            center_y = box[1]
+            box_ct = boxes_center[i]
+            center_x = box_ct[0]
+            center_y = box_ct[1]
             width = box[2]
             height = box[3]
             single_result = (str(list_type[i]), float(confidences[i]), (center_x, center_y, width, height))
