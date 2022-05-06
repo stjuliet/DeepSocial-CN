@@ -38,4 +38,4 @@ Open access paper: https://www.mdpi.com/2076-3417/10/21/7514 & https://doi.org/1
 Code: https://github.com/DrMahdiRezaei/DeepSOCIAL
 
 ## 测试视频和模型文件下载
-https://github.com/stjuliet/DeepSocial-CN/releases/tag/video_code
+https://github.com/stjuliet/DeepSocial-CN/releases
