@@ -1,5 +1,6 @@
 # DeepSocial-CN
 根据原作者提供的代码进行中文重置。
+
 可直接跳转运行：https://github.com/stjuliet/DeepSocial-CN/blob/master/deepsocial_juliet.ipynb
 
 ## 论文和代码下载
