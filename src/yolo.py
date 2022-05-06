@@ -11,18 +11,20 @@ def read_class(file):
 
 class YoloDetect(object):
     """ 目标检测类 """
-    def __init__(self, class_path, modelConfiguration, modelWeights, ReductionFactor):
+    def __init__(self, class_path, modelConfiguration, modelWeights):
         self.classes = read_class(class_path)
         self.net_input_width = 608
         self.net_input_height = 608
         self.confThreshold = 0.5
         self.nmsThreshold = 0.45
-        self.ReductionFactor = ReductionFactor
         self.net = cv.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
         # 编译OpenCV的DNN模块使其支持Nvidia GPU请参考：
-        # https://blog.csdn.net/stjuliet/article/details/107812875?spm=1001.2014.3001.5501
+        # https://blog.csdn.net/stjuliet/article/details/107812875
         self.net.setPreferableBackend(cv.dnn.DNN_BACKEND_CUDA)
         self.net.setPreferableTarget(cv.dnn.DNN_TARGET_CUDA)
+        # 无GPU
+        # self.net.setPreferableBackend(cv.dnn.DNN_BACKEND_OPENCV)
+        # self.net.setPreferableTarget(cv.dnn.DNN_TARGET_CPU)
         cv.ocl.setUseOpenCL(False)
 
     def Init(self, frame, frame_count):

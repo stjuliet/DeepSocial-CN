@@ -15,11 +15,8 @@ modelWeights = "model_data/DeepSocial.weights"
 
 
 if __name__ == '__main__':
-    # 保存视频的分辨率下降倍数
-    ReductionFactor = 2
-
     # 建立检测器和跟踪器
-    yolo = YoloDetect(classesFile, modelConfiguration, modelWeights, ReductionFactor)
+    yolo = YoloDetect(classesFile, modelConfiguration, modelWeights)
     mot_tracker = Sort(max_age=25, min_hits=4, iou_threshold=0.3)
 
     # 配置视频文件
@@ -34,7 +31,7 @@ if __name__ == '__main__':
     # 配置deep social参数
     # 视频帧起始和结束
     StartFrom = 0
-    EndAt = 100  # -1 表示到视频结束
+    EndAt = 500  # -1 表示到视频结束
 
     # 是否输出结果 (0表示否，1表示是）
     CouplesDetection = 1  # Enable Couple Detection
@@ -68,7 +65,9 @@ if __name__ == '__main__':
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
     if EndAt == -1:
-        EndAt = cap.get(cv.CAP_PROP_FRAME_COUNT)  # 获得视频总帧数
+        EndAt = int(cap.get(cv.CAP_PROP_FRAME_COUNT))  # 获得视频总帧数
+    # 保存视频的分辨率下降倍数
+    ReductionFactor = 2
     # 保存视频的分辨率
     height, width = frame_height // ReductionFactor, frame_width // ReductionFactor
 
@@ -97,7 +96,7 @@ if __name__ == '__main__':
 
     # 检测
     video_length = EndAt-StartFrom
-    with tqdm(total=video_length, desc=f"Process:", mininterval=0.5) as pbar:
+    with tqdm(total=video_length, desc=f"Process:", mininterval=0.3) as pbar:
         for _ in range(video_length):
             ret, frame_read = cap.read()
             if not ret:
