@@ -1,0 +1,7 @@
+numpy
+pillow==8.4.0
+filterpy
+opencv-python==4.4.0.40
+matplotlib
+argparse
+tqdm
