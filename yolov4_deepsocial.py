@@ -1,12 +1,16 @@
+import copy
 import os
 import cv2 as cv
 from tqdm import tqdm
+from PIL import Image
 import numpy as np
 from base64 import b64decode, b64encode
 
 from src.yolo import YoloDetect
 from src.sort import *
 from utils.utils import *
+
+from fine_grand.fine_grand_det import CenterNet
 
 # 目标检测配置文件(类别、模型配置、模型权重)
 classesFile = "model_data/coco.names"
@@ -31,7 +35,7 @@ if __name__ == '__main__':
     # 配置deep social参数
     # 视频帧起始和结束
     StartFrom = 0
-    EndAt = 500  # -1 表示到视频结束
+    EndAt = 50  # -1 表示到视频结束
 
     # 是否输出结果 (0表示否，1表示是）
     CouplesDetection = 1  # Enable Couple Detection
@@ -41,6 +45,9 @@ if __name__ == '__main__':
     # MoveMap             = 0
     # ViolationMap        = 0
     # RiskMap             = 0
+    FineGrand = 1  # 细粒度识别+人脸识别
+    if FineGrand:
+        fine_grand_net = CenterNet()
 
     # 距离和半径设置（像素）
     ViolationDistForIndivisuals = 28
@@ -115,9 +122,32 @@ if __name__ == '__main__':
             detections = yolo.yolov3_predict(image)
             # 中心宽高形式 -> 左上右下形式！
             humans = extract_humans(detections)
-            # # 使得检测出的人的边框不超出图像范围
-            # humans[:, 0:4:2] = np.clip(humans[:, 0:4:2], 0, width)
-            # humans[:, 1:4:2] = np.clip(humans[:, 1:4:2], 0, height)
+
+            # 使得检测出的人的边框不超出图像范围
+            humans[:, 0:4:2] = np.clip(humans[:, 0:4:2], 0, width - 1)
+            humans[:, 1:4:2] = np.clip(humans[:, 1:4:2], 0, height - 1)
+
+            if FineGrand:
+                for human in humans:
+                    left, top, right, bottom = human[:-1]
+                    if left < right - 1 and top < bottom - 1:  # 保证能裁剪出人像
+                        crop_image = image[top:bottom, left:right]
+                        # opencv -> pil
+                        crop_pil_image = Image.fromarray(np.uint8(cv.cvtColor(crop_image, cv.COLOR_BGR2RGB)))
+                        results = fine_grand_net.detect_image(crop_pil_image)
+                        _, attrib_dict, boxes, labels, confs = results
+                        if boxes is not None:
+                            box = boxes[0]
+                            bt, bl, bb, br = box
+                            # 变换至原始图像坐标
+                            cv.rectangle(image, (int(left + bl), int(top + bt)), (int(left + br), int(top + bb)), (0, 0, 255), 2)
+                            # 取出细粒度属性字典，按每一个属性往下排列显示
+                            for i, (k, v) in enumerate(attrib_dict.items()):
+                                attrib_str = (str(k) + ": " + str(v))
+                                str_size = cv.getTextSize(attrib_str, cv.FONT_HERSHEY_SIMPLEX, 0.3, 1)[0]  # w, h
+                                cv.putText(image, attrib_str, (int(left + bl), int(bottom + bt + i * str_size[1] + 3)),
+                                           cv.FONT_HERSHEY_SIMPLEX, 0.3, (0, 0, 0), 1)
+
             track_bbs_ids = mot_tracker.update(humans) if len(humans) != 0 else humans
 
             _centroid_dict, centroid_dict, partImage = centroid(track_bbs_ids, image, calibration, _centroid_dict,
